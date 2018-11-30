@@ -14,6 +14,7 @@ Dispatcher.prototype.addListener = function(method, resource, callback) {
     } else {
         this.list[method][resource] = callback;
     }
+    //NUOVO
 };
 
 Dispatcher.prototype.showList = function() {
