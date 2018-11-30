@@ -160,6 +160,23 @@ Dispatcher.prototype.generateToken = function generateToken(data, exp, signature
     return jwt.sign({ ...data, exp}, signature);
 }
 
+
+Dispatcher.prototype.checkToken = function checkToken(req, res) {
+    const cookie = dispatcher.parseCookies(req);
+    if (!(Object.hasOwnProperty.call(cookie, 'token') && cookie['token'])) {
+        return {err: 1, message: 'missing token', code: 401};
+    } else {
+        return jwt.verify(cookie['token'], privateKey, (err, data) => {
+            if (err) {
+                return {err: 1, message: 'fail match', code: 403};
+            } else {
+                const token = dispatcher.generateToken(data, Math.floor(Date.now() / 1000) + 60, privateKey);
+                return {err: 0, token, code: 200};
+            }
+        });
+    }
+}
+
 // var disp = new Dispatcher();
 //
 // disp.list.GET.push({"res": "dd", "cal": "cal"});
