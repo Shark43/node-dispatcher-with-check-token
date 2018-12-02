@@ -151,7 +151,7 @@ Dispatcher.prototype.parseCookies = function parseCookies(request) {
 
 Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
     fs.readFile(path, 'UTF-8', (err, page) => {
-        const header = (headers !== null) ? headers : {'Content-Type': 'text/html;charset:UTF-8'};
+        const header = (headers !== null) ? headers : {'Content-Type': 'text/html;charset=utf-8'};
         res.writeHead(200, header);
         res.end(page);
     });
