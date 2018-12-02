@@ -129,7 +129,7 @@ Dispatcher.prototype.sendError = function sendError(req, res, err) {
 
 Dispatcher.prototype.sendJson = function sendJson(req, res, err, data, headers) {
     if (err) {
-        sendError(req, res, err);
+        this.sendError(req, res, err);
     } else {
         const header = (headers !== null) ? headers : {'Content-Type': 'application/json'};
         res.writeHead(200, header);
