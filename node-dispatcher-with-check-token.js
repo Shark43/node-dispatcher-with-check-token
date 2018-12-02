@@ -200,6 +200,8 @@ Dispatcher.prototype.checkToken = function checkToken(req, res, signature) {
 // disp.list.GET.push({"res": "dd", "cal": "cal"});
 // disp.showList();
 
+module.exports.Dispatcher = new Dispatcher();
+
 let MongoND = function () {
     this.uri = '';
 };
