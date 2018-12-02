@@ -227,10 +227,14 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
-        const find=query['find'];
+        const find = {};
+        if('find' in query){
+            find=query['find'];
+        }
+
         let sort={};
         if ('sort' in query) {
-            sort =query['sort'];
+            sort = query['sort'];
         }
         
         let limit=0;
