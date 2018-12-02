@@ -1,6 +1,6 @@
 {
   "name": "node-dispatcher-with-check-token",
-  "version": "0.1.11",
+  "version": "0.1.13",
   "description": "node dispatcher with check token",
   "main": "node-dispatcher-with-check-token.js",
   "scripts": {
@@ -12,9 +12,18 @@
     "jsonwebtoken": "^8.3.0",
     "mime": "^2.4.0",
     "request": "^2.88.0",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "mongodb": "^3.1.10",
+    "mongodb-core": "^3.1.9"
   },
   "keywords": [],
   "author": "Shark43",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-google": "^0.11.0",
+    "eslint-plugin-import": "^2.14.0",
+    "jscs": "^3.0.7"
+  }
 }
