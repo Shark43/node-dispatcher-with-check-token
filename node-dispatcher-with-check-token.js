@@ -131,7 +131,7 @@ Dispatcher.prototype.sendJson = function sendJson(req, res, err, headers, data) 
     if (err) {
         sendError(req, res, err);
     } else {
-        const header = (headers !== null) ?  headers : {'Content-Type': 'application/json'};
+        const header = (headers !== null) ? headers : {'Content-Type': 'application/json'};
         res.writeHead(200, header);
         res.end(JSON.stringify(data));
     }
@@ -151,7 +151,7 @@ Dispatcher.prototype.parseCookies = function parseCookies(request) {
 
 Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
     fs.readFile(path, 'UTF-8', (err, page) => {
-        const header = (headers !== null) ?  headers : {'Content-Type': 'text/html;charset:UTF-8'};
+        const header = (headers !== null) ? headers : {'Content-Type': 'text/html;charset:UTF-8'};
         res.writeHead(200, header);
         res.end(page);
     });
@@ -222,14 +222,12 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
-        if(query){
-            let find=('find' in query) ? query['find'] : {};
-            let sort=('sort' in query) ? query['sort'] : {};
-            let limit=('limit' in query) ? query['limit'] : 0;
-            let skip=('skip' in query) ? query['skip'] : 0;
-            let project=('project' in query) ? query['project'] : {};
-        }
-        //console.log('find', find);
+        const find = (query && 'find' in query) ? query['find'] : {};
+        const sort = (query && 'sort' in query) ? query['sort'] : {};
+        const limit = (query && 'limit' in query) ? query['limit'] : 0;
+        const skip = (query && 'skip' in query) ? query['skip'] : 0;
+        const project = (query && 'project' in query) ? query['project'] : {};
+
         collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
             callback(req, res, err, data, client);
         });
