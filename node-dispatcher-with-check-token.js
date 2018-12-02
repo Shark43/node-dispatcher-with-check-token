@@ -227,29 +227,30 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
-        const find = {};
-        if('find' in query){
-            find=query['find'];
-        }
-
+        let find = {};
         let sort={};
-        if ('sort' in query) {
-            sort = query['sort'];
-        }
-        
         let limit=0;
-        if ('limit' in query) {
-            limit=query['limit'];
-        }
         let skip=0;
-        if ('skip' in query) {
-            skip=query['skip'];
-        }
         let project={};
-        if ('project' in query) {
-            project=query['project'];
+        if(!query){
+            if('find' in query){
+                find=query['find'];
+            }
+            if ('sort' in query) {
+                sort = query['sort'];
+            } 
+            if ('limit' in query) {
+                limit=query['limit'];
+            }
+            if ('skip' in query) {
+                skip=query['skip'];
+            }
+            if ('project' in query) {
+                project=query['project'];
+            }
         }
 
+        
         console.log('find', find);
         collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
             callback(req, res, err, data, client);
