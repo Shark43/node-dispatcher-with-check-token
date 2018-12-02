@@ -232,7 +232,7 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
         let limit=0;
         let skip=0;
         let project={};
-        if(!query){
+        if(query){
             if('find' in query){
                 find=query['find'];
             }
