@@ -3,6 +3,8 @@ const fs = require("fs");
 const mime = require("mime");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongo = require('mongodb');
+const mongoClient = mongo.MongoClient;
 let Dispatcher = function () {
     this.prompt = "Dispatch >> >> >> ";
     this.list = { "GET" : {}, "POST" : {}, "DELETE" : {}, "PUT" : {}, "PATCH" : {}}
@@ -153,24 +155,40 @@ Dispatcher.prototype.sendPage = function sendPage(req, res, path) {
         res.end(page);
     });
 }
+/**
+ * @param  {object} data
+ * @param  {number} exp
+ * @param  {string} signature
+ * @returns {string} jwt
+ */
 Dispatcher.prototype.generateToken = function generateToken(data, exp, signature) {
     if(!exp){
         exp = 0;
     }
     return jwt.sign({ ...data, exp}, signature);
 }
-
-
-Dispatcher.prototype.checkToken = function checkToken(req, res) {
+/**
+ * Chack token and return an object with
+ * {
+ *  err : bool
+ *  code : intager
+ *  message: string
+ * }
+ * @param  {object} request
+ * @param  {object} response
+ * @param  {string} signature
+ * @returns {} result
+ */
+Dispatcher.prototype.checkToken = function checkToken(req, res, signature) {
     const cookie = this.parseCookies(req);
     if (!(Object.hasOwnProperty.call(cookie, 'token') && cookie['token'])) {
         return {err: 1, message: 'missing token', code: 401};
     } else {
-        return jwt.verify(cookie['token'], privateKey, (err, data) => {
+        return jwt.verify(cookie['token'], signature, (err, data) => {
             if (err) {
                 return {err: 1, message: 'fail match', code: 403};
             } else {
-                const token = this.generateToken(data, Math.floor(Date.now() / 1000) + 60, privateKey);
+                const token = this.generateToken(data, Math.floor(Date.now() / 1000) + 60, signature);
                 return {err: 0, token, code: 200};
             }
         });
@@ -182,4 +200,55 @@ Dispatcher.prototype.checkToken = function checkToken(req, res) {
 // disp.list.GET.push({"res": "dd", "cal": "cal"});
 // disp.showList();
 
-module.exports = new Dispatcher();
+let MongoND = function () {
+    this.uri = '';
+};
+MongoND.prototype.setUri = function setUri(uri) {
+    if(uri){
+        this.uri = uri;
+    }else {
+        this.uri = '';
+    }
+}
+MongoND.prototype.getConnection = function getConnection(req, res, callback) {
+    mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
+        if (err) {
+            sendError(req, res, {code: "500", messageCode: "errore connesione al db"});
+        } else {
+            callback(req, res, client);
+        }
+    });
+};
+
+MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+
+        const find=query['find'];
+        let sort={};
+        if ('sort' in query) {
+            sort =query['sort'];
+        }
+        
+        let limit=0;
+        if ('limit' in query) {
+            limit=query['limit'];
+        }
+        let skip=0;
+        if ('skip' in query) {
+            skip=query['skip'];
+        }
+        let project={};
+        if ('project' in query) {
+            project=query['project'];
+        }
+
+        console.log('find', find);
+        collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+
+module.exports.Mongo= new MongoND();
