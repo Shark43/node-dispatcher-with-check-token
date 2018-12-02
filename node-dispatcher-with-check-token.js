@@ -127,7 +127,7 @@ Dispatcher.prototype.sendError = function sendError(req, res, err) {
     res.end(err.messageCode);
 };
 
-Dispatcher.prototype.sendJson = function sendJson(req, res, err, headers, data) {
+Dispatcher.prototype.sendJson = function sendJson(req, res, err, data, headers) {
     if (err) {
         sendError(req, res, err);
     } else {
