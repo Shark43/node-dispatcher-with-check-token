@@ -127,11 +127,11 @@ Dispatcher.prototype.sendError = function sendError(req, res, err) {
     res.end(err.messageCode);
 };
 
-Dispatcher.prototype.sendJson = function sendJson(req, res, err, data) {
+Dispatcher.prototype.sendJson = function sendJson(req, res, err, headers, data) {
     if (err) {
         sendError(req, res, err);
     } else {
-        const header = {'Content-Type': 'application/json'};
+        const header = (headers !== null) ?  headers : {'Content-Type': 'application/json'};
         res.writeHead(200, header);
         res.end(JSON.stringify(data));
     }
@@ -149,9 +149,9 @@ Dispatcher.prototype.parseCookies = function parseCookies(request) {
     return list;
 };
 
-Dispatcher.prototype.sendPage = function sendPage(req, res, path) {
+Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
     fs.readFile(path, 'UTF-8', (err, page) => {
-        const header = {'Content-Type': 'text/html;charset:UTF-8'};
+        const header = (headers !== null) ?  headers : {'Content-Type': 'text/html;charset:UTF-8'};
         res.writeHead(200, header);
         res.end(page);
     });
