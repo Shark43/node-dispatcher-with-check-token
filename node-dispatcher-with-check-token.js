@@ -103,11 +103,10 @@ Dispatcher.prototype.sendErrorString = function(req, res) {
 Dispatcher.prototype.staticListener = function(req, res) {
     let risorsa = url.parse(req.url, true).pathname;
 
-    let fileName;
     if (risorsa == '/') {
         risorsa = '/index.html';
     }
-    fileName = './static' + risorsa;
+    const fileName = './static' + risorsa;
 
     fs.readFile(fileName, (err, data) => {
         if (err) {
@@ -229,6 +228,61 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
         const project = (query && 'project' in query) ? query['project'] : {};
 
         collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+
+MongoND.prototype.getAggregate = function getAggregate(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+
+        collection.aggregate(query).toArray(function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+
+MongoND.prototype.getDelete = function getDelete(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+
+        collection.removeMany(query).toArray(function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+MongoND.prototype.insertOne = function insertOne(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+
+        collection.insertOne(query).toArray(function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+        const filter = (query && 'filter' in query) ? query['filter'] : {};
+        const action = (query && 'action' in query) ? query['action'] : {};
+
+        collection.updateMany(filter, action, function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+MongoND.prototype.replaceOne = function replaceOne(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+        const filter = (query && 'filter' in query) ? query['filter'] : {};
+        const newDocument = (query && 'newDocument' in query) ? query['newDocument'] : {};
+        collection.replaceOne(filter, newDocument, {'upsert': true}, function(err, data) {
             callback(req, res, err, data, client);
         });
     });
