@@ -259,7 +259,7 @@ MongoND.prototype.insertOne = function insertOne(req, res, dbName, dbColletion, 
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
-        collection.insertOne(query).toArray(function(err, data) {
+        collection.insertOne(query, function(err, data) {
             callback(req, res, err, data, client);
         });
     });
