@@ -76,7 +76,7 @@ Dispatcher.prototype.innerDispatch = function(req, res) {
     }
 };
 
-Dispatcher.prototype.errorListener = function(req, res) {
+Dispatcher.prototype.errorListener = function errorListener(req, res) {
     const resource = url.parse(req.url, true).pathname;
 
     if (resource.substr(0, 4) == '/api') {
@@ -210,7 +210,7 @@ MongoND.prototype.setUri = function setUri(uri) {
 MongoND.prototype.getConnection = function getConnection(req, res, callback) {
     mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
         if (err) {
-            sendError(req, res, {code: '500', messageCode: 'errore connesione al db'});
+            Dispatcher.sendError.call(MongoND, req, res, {code: '500', messageCode: 'errore connesione al db'});
         } else {
             callback(req, res, client);
         }
