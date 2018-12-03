@@ -210,7 +210,7 @@ MongoND.prototype.setUri = function setUri(uri) {
 MongoND.prototype.getConnection = function getConnection(req, res, callback) {
     mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
         if (err) {
-            Dispatcher.sendError.call(MongoND, req, res, {code: '500', messageCode: 'errore connesione al db'});
+            Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', messageCode: 'errore connesione al db'});
         } else {
             callback(req, res, client);
         }
