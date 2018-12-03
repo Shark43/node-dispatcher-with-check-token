@@ -1,6 +1,6 @@
 {
   "name": "node-dispatcher-with-check-token",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "node dispatcher with check token",
   "main": "node-dispatcher-with-check-token.js",
   "scripts": {
