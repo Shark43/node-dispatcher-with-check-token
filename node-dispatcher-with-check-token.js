@@ -98,9 +98,9 @@ Dispatcher.prototype.errorListener = function errorListener(req, res) {
     }
 };
 
-Dispatcher.prototype.sendErrorString = function(req, res) {
-    const header = {'Content-Type': 'text-plain;charset=UTF-8'};
-    res.writeHead(200, header);
+Dispatcher.prototype.sendErrorString = function(req, res, headers) {
+    headers = (headers !== null) ? headers : {'Content-Type': 'text-plain;charset=UTF-8'};
+    res.writeHead(404, headers);
     res.end('Risorsa non trovata');
 };
 
@@ -127,7 +127,7 @@ Dispatcher.prototype.staticListener = function(req, res) {
 Dispatcher.prototype.sendError = function sendError(req, res, err) {
     const header = {'Content-Type': 'text/plain;charset=utf-8'};
     res.writeHead(err.code, header);
-    res.end(err.messageCode);
+    res.end(err.message);
 };
 
 Dispatcher.prototype.sendJson = function sendJson(req, res, err, data, headers) {
@@ -155,8 +155,8 @@ Dispatcher.prototype.parseCookies = function parseCookies(request) {
 Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
     fs.readFile(path, 'UTF-8', (err, page) => {
         const header = (headers) ? headers : {'Content-Type': 'text/html;charset=utf-8'};
-        res.writeHead(200, header);
-        res.end(page);
+        res.writeHead(err ? 404 : 200, header);
+        err ? res.end() : res.end(page);
     });
 };
 /**
@@ -207,15 +207,15 @@ Dispatcher.prototype.checkToken = function checkToken(req, res, signature, isAja
     const token = this.getLoginToken(req, isAjaxRequest);
     console.log('TOKEN', token);
     if (!token && token != '') {
-        return {err: 1, message: 'missing token', code: 401};
+        return {error: 1, message: 'missing token', code: 401};
     } else {
-        return jwt.verify(token, signature, (err, data) => {
-            if (err) {
-                return {err: 1, message: 'fail match', code: 403};
+        return jwt.verify(token, signature, (error, data) => {
+            if (error) {
+                return {error: 1, message: 'fail match', code: 403};
             } else {
                 regenerationTime = regenerationTime ? regenerationTime : Math.floor(Date.now() / 1000) + 60;
                 const token = this.generateToken(data, regenerationTime, signature);
-                return {err: 0, token, code: 200};
+                return {error: 0, token, code: 200};
             }
         });
     }
@@ -224,10 +224,10 @@ Dispatcher.prototype.checkToken = function checkToken(req, res, signature, isAja
 Dispatcher.prototype.bcryptCompare = function bcryptCompare(req, res, firstString, secondString, callback) {
     bcrypt.compare(firstString, secondString, (err, result) => {
         if (err) {
-            this.sendError(req, res, {code: 500, messageCode: 'errore: bcrypt compare'});
+            this.sendError(req, res, {code: 500, message: 'errore: bcrypt compare', error: 1});
         } else {
             if (!result) {
-                this.sendError(req, res, {code: 401, messageCode: 'errore: Password non valida'});
+                this.sendError(req, res, {code: 401, message: 'errore: Password non valida', error: 1});
             } else {
                 /** un ora di validita */
                 callback();
@@ -251,7 +251,7 @@ MongoND.prototype.setUri = function setUri(uri) {
 MongoND.prototype.getConnection = function getConnection(req, res, callback) {
     mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
         if (err) {
-            Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', messageCode: 'errore connesione al db'});
+            Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore connesione al db', error: 1});
         } else {
             callback(req, res, client);
         }
