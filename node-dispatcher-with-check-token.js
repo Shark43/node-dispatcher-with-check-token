@@ -5,6 +5,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongo = require('mongodb');
 const mongoClient = mongo.MongoClient;
+
+/**
+ * @constructor
+ */
 const Dispatcher = function() {
     this.prompt = 'Dispatch >> >> >> ';
     this.list = {'GET': {}, 'POST': {}, 'DELETE': {}, 'PUT': {}, 'PATCH': {}};
@@ -195,6 +199,21 @@ Dispatcher.prototype.checkToken = function checkToken(req, res, signature) {
     }
 };
 
+Dispatcher.prototype.bcryptCompare = function bcryptCompare(req, res, firstString, secondString, callback) {
+    bcrypt.compare(firstString, secondString, (err, result) => {
+        if (err) {
+            this.sendError(req, res, {code: 500, messageCode: 'errore: bcrypt compare'});
+        } else {
+            if (!result) {
+                this.sendError(req, res, {code: 401, messageCode: 'errore: Password non valida'});
+            } else {
+                /** un ora di validita */
+                callback();
+            }
+        }
+    });
+};
+
 module.exports.Dispatcher = new Dispatcher();
 
 const MongoND = function() {
@@ -216,7 +235,15 @@ MongoND.prototype.getConnection = function getConnection(req, res, callback) {
         }
     });
 };
-
+/**
+ * @name getFind
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param  {Function} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, query, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
