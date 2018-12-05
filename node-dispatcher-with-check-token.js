@@ -131,7 +131,7 @@ Dispatcher.prototype.sendError = function sendError(req, res, err) {
 };
 
 Dispatcher.prototype.sendJson = function sendJson(req, res, err, data, headers) {
-    if (err) {
+    if (err && 'error' in err && err['error']) {
         this.sendError(req, res, err);
     } else {
         const header = (headers !== null) ? headers : {'Content-Type': 'application/json'};
@@ -167,7 +167,7 @@ Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
  */
 Dispatcher.prototype.generateToken = function generateToken(data, exp, signature) {
     if (!exp) {
-        exp = 0;
+        exp = Math.floor(Date.now() / 1000) + 60;
     }
     return jwt.sign({...data, exp}, signature);
 };
@@ -178,21 +178,43 @@ Dispatcher.prototype.generateToken = function generateToken(data, exp, signature
  *  code : intager
  *  message: string
  * }
- * @param  {object} request
- * @param  {object} response
+ * @param  {object} req
+ * @param  {object} res
  * @param  {string} signature
- * @returns {} result
+ * @param {string} regenerationTime
+ * @return {object} result
  */
-Dispatcher.prototype.checkToken = function checkToken(req, res, signature) {
-    const cookie = this.parseCookies(req);
-    if (!(Object.hasOwnProperty.call(cookie, 'token') && cookie['token'])) {
+Dispatcher.prototype.getLoginToken = function getLoginToken(req, isAjaxRequest) {
+    let token = '';
+    if (isAjaxRequest) {
+        token = req.headers.authorization;
+    } else {
+        const cookie = this.parseCookies(req);
+        console.log('COOKIE: ', cookie);
+
+        if (cookie && 'token' in cookie) {
+            token = cookie['token'];
+        } else {
+            token = '';
+        }
+    }
+    console.log('tkn:', token);
+
+    return token;
+};
+
+Dispatcher.prototype.checkToken = function checkToken(req, res, signature, isAjaxRequest, regenerationTime) {
+    const token = this.getLoginToken(req, isAjaxRequest);
+    console.log('TOKEN', token);
+    if (!token && token != '') {
         return {err: 1, message: 'missing token', code: 401};
     } else {
-        return jwt.verify(cookie['token'], signature, (err, data) => {
+        return jwt.verify(token, signature, (err, data) => {
             if (err) {
                 return {err: 1, message: 'fail match', code: 403};
             } else {
-                const token = this.generateToken(data, Math.floor(Date.now() / 1000) + 60, signature);
+                regenerationTime = regenerationTime ? regenerationTime : Math.floor(Date.now() / 1000) + 60;
+                const token = this.generateToken(data, regenerationTime, signature);
                 return {err: 0, token, code: 200};
             }
         });
@@ -245,6 +267,21 @@ MongoND.prototype.getConnection = function getConnection(req, res, callback) {
  * @param  {Function} callback - callback (req, res, err, data, client)
  */
 MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, query, callback) {
+    this.getConnection(req, res, (req, res, client) => {
+        const db = client.db(dbName);
+        const collection = db.collection(dbColletion);
+        const find = (query && 'find' in query) ? query['find'] : {};
+        const sort = (query && 'sort' in query) ? query['sort'] : {};
+        const limit = (query && 'limit' in query) ? query['limit'] : 0;
+        const skip = (query && 'skip' in query) ? query['skip'] : 0;
+        const project = (query && 'project' in query) ? query['project'] : {};
+
+        collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
+            callback(req, res, err, data, client);
+        });
+    });
+};
+MongoND.prototype.getFindOne = function getFind(req, res, dbName, dbColletion, query, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
