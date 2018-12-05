@@ -27,7 +27,7 @@ module.exports = {
                 "FunctionExpression": false
             }
         }],
-        "max-len": ["error", { "code": 120 }],
+        "max-len": ["error", { "code": 'off' }],
         'no-console': 'off',
         "indent": ["error", 4, { ImportDeclaration: 1 }],
         "prefer-const": ["error", {"destructuring": "all"}]

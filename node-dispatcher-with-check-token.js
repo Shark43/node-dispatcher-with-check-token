@@ -190,7 +190,6 @@ Dispatcher.prototype.getLoginToken = function getLoginToken(req, isAjaxRequest) 
         token = req.headers.authorization;
     } else {
         const cookie = this.parseCookies(req);
-        console.log('COOKIE: ', cookie);
 
         if (cookie && 'token' in cookie) {
             token = cookie['token'];
@@ -198,14 +197,12 @@ Dispatcher.prototype.getLoginToken = function getLoginToken(req, isAjaxRequest) 
             token = '';
         }
     }
-    console.log('tkn:', token);
 
     return token;
 };
 
 Dispatcher.prototype.checkToken = function checkToken(req, res, signature, isAjaxRequest, regenerationTime) {
     const token = this.getLoginToken(req, isAjaxRequest);
-    console.log('TOKEN', token);
     if (!token && token != '') {
         return {error: 1, message: 'missing token', code: 401};
     } else {
@@ -266,7 +263,7 @@ MongoND.prototype.getConnection = function getConnection(req, res, callback) {
  * @param  {object} query - query object
  * @param  {Function} callback - callback (req, res, err, data, client)
  */
-MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, query, errorHandling,callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
@@ -277,58 +274,83 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
         const project = (query && 'project' in query) ? query['project'] : {};
 
         collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
-            callback(req, res, err, data, client);
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione find', error : 1
+                });
+            }else{
+                callback(req, res, err, data, client);
+            }
         });
     });
 };
-MongoND.prototype.getFindOne = function getFind(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.getFindOne = function getFind(req, res, dbName, dbColletion, query,errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
-        const find = (query && 'find' in query) ? query['find'] : {};
-        const sort = (query && 'sort' in query) ? query['sort'] : {};
-        const limit = (query && 'limit' in query) ? query['limit'] : 0;
-        const skip = (query && 'skip' in query) ? query['skip'] : 0;
-        const project = (query && 'project' in query) ? query['project'] : {};
 
-        collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
-            callback(req, res, err, data, client);
+        collection.findOne(query, function(err, result) {
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione findOne', error : 1
+                });
+            }else{
+                callback(req, res, err, result, client);
+            }
         });
     });
 };
 
-MongoND.prototype.getAggregate = function getAggregate(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.getAggregate = function getAggregate(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.aggregate(query).toArray(function(err, data) {
-            callback(req, res, err, data, client);
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione aggregate', error : 1
+                });
+            }else{
+                callback(req, res, err, result, client);
+            }
         });
     });
 };
 
-MongoND.prototype.getDelete = function getDelete(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.getDelete = function getDelete(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.removeMany(query).toArray(function(err, data) {
-            callback(req, res, err, data, client);
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione removeMany', error : 1
+                });
+            }else{
+                callback(req, res, err, result, client);
+            }
         });
     });
 };
-MongoND.prototype.insertOne = function insertOne(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.insertOne = function insertOne(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.insertOne(query, function(err, data) {
-            callback(req, res, err, data, client);
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione insertOne', error : 1
+                });
+            }else{
+                callback(req, res, err, result, client);
+            }
         });
     });
 };
-MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
@@ -336,18 +358,30 @@ MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion
         const action = (query && 'action' in query) ? query['action'] : {};
 
         collection.updateMany(filter, action, function(err, data) {
-            callback(req, res, err, data, client);
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione updateMany', error : 1
+                });
+            }else{
+                callback(req, res, err, result, client);
+            }
         });
     });
 };
-MongoND.prototype.replaceOne = function replaceOne(req, res, dbName, dbColletion, query, callback) {
+MongoND.prototype.replaceOne = function replaceOne(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
         const filter = (query && 'filter' in query) ? query['filter'] : {};
         const newDocument = (query && 'newDocument' in query) ? query['newDocument'] : {};
         collection.replaceOne(filter, newDocument, {'upsert': true}, function(err, data) {
-            callback(req, res, err, data, client);
+            if(errorHandling && err){
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {
+                    code : '500', message: 'errore esequzione replaceOne', error : 1
+                });
+            }else{
+                callback(req, res, err, result, client);
+            }
         });
     });
 };
