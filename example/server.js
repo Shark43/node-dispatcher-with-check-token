@@ -131,12 +131,12 @@ dispatcher.addListener('POST', '/api/login', function(req, res) {
 
 dispatcher.addListener('GET', ['/index.html', '/'], function(req, res) {
     // eslint-disable-next-line prefer-const
-    let result = dispatcher.checkToken(req, res, privateKey, false);
+    let result = dispatcher.checkToken(req, res, privateKey);
     result !== undefined ? result : {'error': 1, 'massage': 'undefined token error', 'code': 500};
     if ('code' in result) {
         switch (result['code']) {
         case 200:
-            res.setHeader('Set-Cookie', 'token=' + result['token'] + ';max-age=' + 60 * 60 * 24 * 3);
+            res.setHeader('Set-Cookie', 'token=' + result['token'] + ';max-age=' + (60 * 60 * 24 * 3)+';Path=/');
             dispatcher.sendPage(req, res, './static/index.html');
             break;
         default:
@@ -155,22 +155,21 @@ dispatcher.addListener('GET', ['/index.html', '/'], function(req, res) {
 
 dispatcher.addListener('GET', '/api/test', function(req, res) {
     // eslint-disable-next-line prefer-const
-    let result = dispatcher.checkToken(req, res, privateKey, true);
+    let result = dispatcher.checkToken(req, res, privateKey);
     result !== undefined ? result : {'error': 1, 'massage': 'undefined token error', 'code': -1};
-    console.log('rst:',result);
     if ('code' in result) {
         switch (result['code']) {
         case -1:
             dispatcher.sendJson(req, res, result);
             break;
         case 200:
-            res.setHeader('Authorization', result['token']);
+            res.setHeader('Set-Cookie', 'token=' + result['token'] + ';max-age=' + (60 * 60 * 24 * 3)+';Path=/');
+            mymongo.setUri('mongodb://127.0.0.1:27017');
             mymongo.getFind(req, res, 'persons', 'persons', {}, 1, (req, res, err, data, client) => {
                 console.log('ed: ',err, data);
                 dispatcher.sendJson(req, res, err, {
                     prova: 'sajioasjf',
                     find : data
-                    // token: result['token'],
                 });
                 client.close();
             })

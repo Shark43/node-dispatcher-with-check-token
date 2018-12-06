@@ -184,25 +184,19 @@ Dispatcher.prototype.generateToken = function generateToken(data, exp, signature
  * @param {string} regenerationTime
  * @return {object} result
  */
-Dispatcher.prototype.getLoginToken = function getLoginToken(req, isAjaxRequest) {
-    let token = '';
-    if (isAjaxRequest) {
-        token = req.headers.authorization;
+Dispatcher.prototype.getLoginToken = function getLoginToken(req) {
+    const cookie = this.parseCookies(req);
+    if (cookie && 'token' in cookie) {
+        token = cookie['token'];
     } else {
-        const cookie = this.parseCookies(req);
-
-        if (cookie && 'token' in cookie) {
-            token = cookie['token'];
-        } else {
-            token = '';
-        }
+        token = '';
     }
 
     return token;
 };
 
-Dispatcher.prototype.checkToken = function checkToken(req, res, signature, isAjaxRequest, regenerationTime) {
-    const token = this.getLoginToken(req, isAjaxRequest);
+Dispatcher.prototype.checkToken = function checkToken(req, res, signature, regenerationTime) {
+    const token = this.getLoginToken(req);
     if (!token && token != '') {
         return {error: 1, message: 'missing token', code: 401};
     } else {

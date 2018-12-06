@@ -2,9 +2,10 @@ $(document).ready(function() {
     $('#btnGet').on('click', (e) => {
         const ajaxRequest = inviaRichiesta('/api/test', 'GET', {});
         ajaxRequest.done((data, textStatus, jqXHR) => {
-            const token = jqXHR.getResponseHeader('Authorization');
-            document.cookie = 'token='+token+';max-age='+(60*60*24*3);
-            console.log('DATA/TOKEN', data, token);
+            // const token = jqXHR.getResponseHeader('Authorization');
+            // document.cookie = 'token='+token+';max-age='+(60*60*24*3);
+            // console.log('DATA/TOKEN', data, token);
+            console.log(data);
         });
         ajaxRequest.fail((jqXHR, textStatus, errorThrown) => {
             switch (jqXHR['status']) {

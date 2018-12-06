@@ -13,12 +13,12 @@ function inviaRichiesta(_url, method, params) {
 
         timeout: 3600,
 
-        beforeSend: function(request) {
-            const cookie = parseCookies(document);
-            if (cookie && 'token' in cookie) {
-                request.setRequestHeader('Authorization', cookie['token']);
-            }
-        }
+        // beforeSend: function(request) {
+        //     const cookie = parseCookies(document);
+        //     if (cookie && 'token' in cookie) {
+        //         request.setRequestHeader('Authorization', cookie['token']);
+        //     }
+        // }
     });
 }
 // function inviaRichiesta(_url, method, params, callback) {
