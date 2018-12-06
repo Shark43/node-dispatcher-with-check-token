@@ -246,6 +246,7 @@ MongoND.prototype.setUri = function setUri(uri) {
     }
 };
 MongoND.prototype.getConnection = function getConnection(req, res, callback) {
+    if(this.uri == '')  Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
     mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
         if (err) {
             Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore connesione al db', error: 1});
