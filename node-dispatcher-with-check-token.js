@@ -171,6 +171,11 @@ Dispatcher.prototype.generateToken = function generateToken(data, exp, signature
     }
     return jwt.sign({...data, exp}, signature);
 };
+
+Dispatcher.prototype.readFileSync = function (path, encoding) {
+    return fs.existsSync(path) ? {'file' : fs.readFileSync(path, encoding), 'error': 0}
+    : {'error' : 1, 'message' : `file doesn\'t exists at this ${path}`, 'file' : ''};
+};
 /**
  * Chack token and return an object with
  * {
@@ -273,6 +278,7 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione find', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, data, client);
             }
@@ -289,6 +295,7 @@ MongoND.prototype.getFindOne = function getFind(req, res, dbName, dbColletion, q
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione findOne', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, result, client);
             }
@@ -306,6 +313,7 @@ MongoND.prototype.getAggregate = function getAggregate(req, res, dbName, dbColle
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione aggregate', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, result, client);
             }
@@ -323,6 +331,7 @@ MongoND.prototype.getDelete = function getDelete(req, res, dbName, dbColletion, 
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione removeMany', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, result, client);
             }
@@ -339,6 +348,7 @@ MongoND.prototype.insertOne = function insertOne(req, res, dbName, dbColletion, 
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione insertOne', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, result, client);
             }
@@ -357,6 +367,7 @@ MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione updateMany', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, result, client);
             }
@@ -374,6 +385,7 @@ MongoND.prototype.replaceOne = function replaceOne(req, res, dbName, dbColletion
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code : '500', message: 'errore esequzione replaceOne', error : 1
                 });
+                client.close();
             }else{
                 callback(req, res, err, result, client);
             }
