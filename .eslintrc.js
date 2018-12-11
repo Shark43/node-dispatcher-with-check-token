@@ -27,9 +27,16 @@ module.exports = {
                 "FunctionExpression": false
             }
         }],
-        "max-len": ["error", { "code": 'off' }],
+        "max-len": ['error', { 
+            "code":  512,
+            "ignoreUrls": true,
+            "ignoreComments": true,
+            "ignoreStrings": true,
+            "ignoreTemplateLiterals": true,
+            "ignoreRegExpLiterals": true,
+        }],
         'no-console': 'off',
-        "indent": ["error", 4, { ImportDeclaration: 1 }],
+        "indent": ["error", 4, { 'ImportDeclaration': 1 }],
         "prefer-const": ["error", {"destructuring": "all"}]
     },
     "extends": ["eslint:recommended", "google"]

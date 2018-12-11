@@ -80,7 +80,7 @@ Dispatcher.prototype.innerDispatch = function(req, res) {
     }
 };
 
-Dispatcher.prototype.errorListener = function errorListener(req, res) {
+Dispatcher.prototype.errorListener = function(req, res) {
     const resource = url.parse(req.url, true).pathname;
 
     if (resource.substr(0, 4) == '/api') {
@@ -124,13 +124,13 @@ Dispatcher.prototype.staticListener = function(req, res) {
 };
 
 
-Dispatcher.prototype.sendError = function sendError(req, res, err) {
+Dispatcher.prototype.sendError = function(req, res, err) {
     const header = {'Content-Type': 'text/plain;charset=utf-8'};
     res.writeHead(err.code, header);
     res.end(err.message);
 };
 
-Dispatcher.prototype.sendJson = function sendJson(req, res, err, data, headers) {
+Dispatcher.prototype.sendJson = function(req, res, err, data, headers) {
     if (err && 'error' in err && err['error']) {
         this.sendError(req, res, err);
     } else {
@@ -140,7 +140,7 @@ Dispatcher.prototype.sendJson = function sendJson(req, res, err, data, headers) 
     }
 };
 
-Dispatcher.prototype.parseCookies = function parseCookies(request) {
+Dispatcher.prototype.parseCookies = function(request) {
     const list = {};
     const rc = request.headers.cookie;
 
@@ -152,7 +152,7 @@ Dispatcher.prototype.parseCookies = function parseCookies(request) {
     return list;
 };
 
-Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
+Dispatcher.prototype.sendPage = function(req, res, path, headers) {
     fs.readFile(path, 'UTF-8', (err, page) => {
         const header = (headers) ? headers : {'Content-Type': 'text/html;charset=utf-8'};
         res.writeHead(err ? 404 : 200, header);
@@ -165,16 +165,16 @@ Dispatcher.prototype.sendPage = function sendPage(req, res, path, headers) {
  * @param  {string} signature
  * @return {string} jwt
  */
-Dispatcher.prototype.generateToken = function generateToken(data, exp, signature) {
+Dispatcher.prototype.generateToken = function(data, exp, signature) {
     if (!exp) {
         exp = Math.floor(Date.now() / 1000) + 60;
     }
     return jwt.sign({...data, exp}, signature);
 };
 
-Dispatcher.prototype.readFileSync = function (path, encoding) {
-    return fs.existsSync(path) ? {'file' : fs.readFileSync(path, encoding), 'error': 0}
-    : {'error' : 1, 'message' : `file doesn\'t exists at this ${path}`, 'file' : ''};
+Dispatcher.prototype.readFileSync = function(path, encoding) {
+    return fs.existsSync(path) ? {'file': fs.readFileSync(path, encoding), 'error': 0}
+        : {'error': 1, 'message': `file doesn't exists at this ${path}`, 'file': ''};
 };
 /**
  * Chack token and return an object with
@@ -189,18 +189,16 @@ Dispatcher.prototype.readFileSync = function (path, encoding) {
  * @param {string} regenerationTime
  * @return {object} result
  */
-Dispatcher.prototype.getLoginToken = function getLoginToken(req) {
+Dispatcher.prototype.getLoginToken = function(req) {
     const cookie = this.parseCookies(req);
     if (cookie && 'token' in cookie) {
-        token = cookie['token'];
+        return cookie['token'];
     } else {
-        token = '';
+        return '';
     }
-
-    return token;
 };
 
-Dispatcher.prototype.checkToken = function checkToken(req, res, signature, regenerationTime) {
+Dispatcher.prototype.checkToken = function(req, res, signature, regenerationTime) {
     const token = this.getLoginToken(req);
     if (!token && token != '') {
         return {error: 1, message: 'missing token', code: 401};
@@ -217,7 +215,7 @@ Dispatcher.prototype.checkToken = function checkToken(req, res, signature, regen
     }
 };
 
-Dispatcher.prototype.bcryptCompare = function bcryptCompare(req, res, firstString, secondString, callback) {
+Dispatcher.prototype.bcryptCompare = function(req, res, firstString, secondString, callback) {
     bcrypt.compare(firstString, secondString, (err, result) => {
         if (err) {
             this.sendError(req, res, {code: 500, message: 'errore: bcrypt compare', error: 1});
@@ -244,8 +242,8 @@ MongoND.prototype.setUri = function setUri(uri) {
         this.uri = '';
     }
 };
-MongoND.prototype.getConnection = function getConnection(req, res, callback) {
-    if(this.uri == '')  Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
+MongoND.prototype.getConnection = function(req, res, callback) {
+    if (this.uri == '') Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
     mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
         if (err) {
             Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore connesione al db', error: 1});
@@ -261,9 +259,10 @@ MongoND.prototype.getConnection = function getConnection(req, res, callback) {
  * @param  {string} dbName - database name
  * @param  {string} dbColletion - database collection name
  * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
  * @param  {Function} callback - callback (req, res, err, data, client)
  */
-MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, query, errorHandling,callback) {
+MongoND.prototype.getFind = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
@@ -274,88 +273,88 @@ MongoND.prototype.getFind = function getFind(req, res, dbName, dbColletion, quer
         const project = (query && 'project' in query) ? query['project'] : {};
 
         collection.find(find).project(project).sort(sort).skip(skip).limit(limit).toArray(function(err, data) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione find', error : 1
+                    code: '500', message: 'errore esequzione find', error: 1,
                 });
                 client.close();
-            }else{
+            } else {
                 callback(req, res, err, data, client);
             }
         });
     });
 };
-MongoND.prototype.getFindOne = function getFind(req, res, dbName, dbColletion, query,errorHandling, callback) {
+MongoND.prototype.getFindOne = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.findOne(query, function(err, result) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione findOne', error : 1
+                    code: '500', message: 'errore esequzione findOne', error: 1,
                 });
                 client.close();
-            }else{
+            } else {
                 callback(req, res, err, result, client);
             }
         });
     });
 };
 
-MongoND.prototype.getAggregate = function getAggregate(req, res, dbName, dbColletion, query, errorHandling, callback) {
+MongoND.prototype.getAggregate = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.aggregate(query).toArray(function(err, data) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione aggregate', error : 1
+                    code: '500', message: 'errore esequzione aggregate', error: 1,
                 });
                 client.close();
-            }else{
-                callback(req, res, err, result, client);
+            } else {
+                callback(req, res, err, data, client);
             }
         });
     });
 };
 
-MongoND.prototype.getDelete = function getDelete(req, res, dbName, dbColletion, query, errorHandling, callback) {
+MongoND.prototype.getDelete = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.removeMany(query).toArray(function(err, data) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione removeMany', error : 1
+                    code: '500', message: 'errore esequzione removeMany', error: 1,
                 });
                 client.close();
-            }else{
-                callback(req, res, err, result, client);
+            } else {
+                callback(req, res, err, data, client);
             }
         });
     });
 };
-MongoND.prototype.insertOne = function insertOne(req, res, dbName, dbColletion, query, errorHandling, callback) {
+MongoND.prototype.insertOne = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
         collection.insertOne(query, function(err, data) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione insertOne', error : 1
+                    code: '500', message: 'errore esequzione insertOne', error: 1,
                 });
                 client.close();
-            }else{
-                callback(req, res, err, result, client);
+            } else {
+                callback(req, res, err, data, client);
             }
         });
     });
 };
-MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion, query, errorHandling, callback) {
+MongoND.prototype.updateMany = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
@@ -363,31 +362,31 @@ MongoND.prototype.updateMany = function updateMany(req, res, dbName, dbColletion
         const action = (query && 'action' in query) ? query['action'] : {};
 
         collection.updateMany(filter, action, function(err, data) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione updateMany', error : 1
+                    code: '500', message: 'errore esequzione updateMany', error: 1,
                 });
                 client.close();
-            }else{
-                callback(req, res, err, result, client);
+            } else {
+                callback(req, res, err, data, client);
             }
         });
     });
 };
-MongoND.prototype.replaceOne = function replaceOne(req, res, dbName, dbColletion, query, errorHandling, callback) {
+MongoND.prototype.replaceOne = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
         const filter = (query && 'filter' in query) ? query['filter'] : {};
         const newDocument = (query && 'newDocument' in query) ? query['newDocument'] : {};
         collection.replaceOne(filter, newDocument, {'upsert': true}, function(err, data) {
-            if(errorHandling && err){
+            if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
-                    code : '500', message: 'errore esequzione replaceOne', error : 1
+                    code: '500', message: 'errore esequzione replaceOne', error: 1,
                 });
                 client.close();
-            }else{
-                callback(req, res, err, result, client);
+            } else {
+                callback(req, res, err, data, client);
             }
         });
     });
