@@ -21,13 +21,23 @@ const mongoClient = mongo.MongoClient;
 
 /**
   * @callback verifyTokenSendResponse
-  * @param {object} res
+  * @param {object} req
   * @param {object} res
   * @param {object} result
   */
-
 /**
- * @constructor
+ * @callback getConnection
+ * @param {object} req
+ * @param {object} res
+ * @param {object} client
+ */
+/**
+ * @callback mongoCallback
+ * @param {object} req
+ * @param {object} res
+ * @param {object} error
+ * @param {object} data
+ * @param {object} client
  */
 const Dispatcher = function() {
     this.prompt = 'Dispatch >> >> >> ';
@@ -117,7 +127,12 @@ Dispatcher.prototype.errorListener = function(req, res) {
         });
     }
 };
-
+/**
+ * for 404 error
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {object} headers
+ */
 Dispatcher.prototype.sendErrorString = function(req, res, headers) {
     headers = (headers !== null) ? headers : {'Content-Type': 'text-plain;charset=UTF-8'};
     res.writeHead(404, headers);
@@ -144,12 +159,24 @@ Dispatcher.prototype.staticListener = function(req, res) {
 };
 
 
-Dispatcher.prototype.sendError = function(req, res, err) {
-    const header = {'Content-Type': 'text/plain;charset=utf-8'};
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {Error} err
+ * @param {object} headers
+ */
+Dispatcher.prototype.sendError = function(req, res, err, headers) {
+    const header = (headers !== null) ? headers : {'Content-Type': 'text/plain;charset=utf-8'};
     res.writeHead(err.code, header);
     res.end(err.message);
 };
-
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {Error} err
+ * @param  {object} data
+ * @param {object} headers
+ */
 Dispatcher.prototype.sendJson = function(req, res, err, data, headers) {
     if (err && 'error' in err && err['error']) {
         this.sendError(req, res, err);
@@ -159,7 +186,10 @@ Dispatcher.prototype.sendJson = function(req, res, err, data, headers) {
         res.end(JSON.stringify(data));
     }
 };
-
+/**
+ * @param  {object} request - server request
+ * @return {object} cookies - key : value
+ */
 Dispatcher.prototype.parseCookies = function(request) {
     const list = {};
     const rc = request.headers.cookie;
@@ -171,7 +201,12 @@ Dispatcher.prototype.parseCookies = function(request) {
 
     return list;
 };
-
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} path
+ * @param  {object} headers
+ */
 Dispatcher.prototype.sendPage = function(req, res, path, headers) {
     fs.readFile(path, 'UTF-8', (err, page) => {
         const header = (headers) ? headers : {'Content-Type': 'text/html;charset=utf-8'};
@@ -303,6 +338,9 @@ module.exports.Dispatcher = new Dispatcher();
 const MongoND = function() {
     this.uri = '';
 };
+/**
+ * @param  {string} uri
+ */
 MongoND.prototype.setUri = function setUri(uri) {
     if (uri) {
         this.uri = uri;
@@ -310,6 +348,11 @@ MongoND.prototype.setUri = function setUri(uri) {
         this.uri = '';
     }
 };
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {getConnection} callback - req,res,callback
+ */
 MongoND.prototype.getConnection = function(req, res, callback) {
     if (this.uri == '') {
         Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
@@ -324,14 +367,13 @@ MongoND.prototype.getConnection = function(req, res, callback) {
     }
 };
 /**
- * @name getFind
  * @param  {object} req - server request
  * @param  {object} res - server response
  * @param  {string} dbName - database name
  * @param  {string} dbColletion - database collection name
  * @param  {object} query - query object
  * @param {bool} errorHandling - bool for errorHandling
- * @param  {Function} callback - callback (req, res, err, data, client)
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoND.prototype.getFind = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
@@ -355,6 +397,15 @@ MongoND.prototype.getFind = function(req, res, dbName, dbColletion, query, error
         });
     });
 };
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.getFindOne = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
@@ -372,7 +423,15 @@ MongoND.prototype.getFindOne = function(req, res, dbName, dbColletion, query, er
         });
     });
 };
-
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.getAggregate = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
@@ -390,7 +449,15 @@ MongoND.prototype.getAggregate = function(req, res, dbName, dbColletion, query, 
         });
     });
 };
-
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.getDelete = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
@@ -408,6 +475,15 @@ MongoND.prototype.getDelete = function(req, res, dbName, dbColletion, query, err
         });
     });
 };
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.insertOne = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
@@ -425,6 +501,15 @@ MongoND.prototype.insertOne = function(req, res, dbName, dbColletion, query, err
         });
     });
 };
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.updateMany = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
@@ -444,6 +529,15 @@ MongoND.prototype.updateMany = function(req, res, dbName, dbColletion, query, er
         });
     });
 };
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} dbName - database name
+ * @param  {string} dbColletion - database collection name
+ * @param  {object} query - query object
+ * @param {bool} errorHandling - bool for errorHandling
+ * @param  {mongoCallback} callback - callback (req, res, err, data, client)
+ */
 MongoND.prototype.replaceOne = function(req, res, dbName, dbColletion, query, errorHandling, callback) {
     this.getConnection(req, res, (req, res, client) => {
         const db = client.db(dbName);
