@@ -7,6 +7,26 @@ const mongo = require('mongodb');
 const mongoClient = mongo.MongoClient;
 
 /**
+ * @typedef {object} Error
+ * @property {bool} error
+ * @property {string} message
+ * @property {intager} code
+ */
+/**
+ * @typedef {object} readFileSync
+ * @property {bool} error
+ * @property {string} message
+ * @property {string} file
+ */
+
+/**
+  * @callback verifyTokenSendResponse
+  * @param {object} res
+  * @param {object} res
+  * @param {object} result
+  */
+
+/**
  * @constructor
  */
 const Dispatcher = function() {
@@ -171,23 +191,25 @@ Dispatcher.prototype.generateToken = function(data, exp, signature) {
     }
     return jwt.sign({...data, exp}, signature);
 };
-
+/**
+ * @param  {string} path
+ * @param  {string} encoding
+ * @return {readFileSync} objectFile
+ */
 Dispatcher.prototype.readFileSync = function(path, encoding) {
     return fs.existsSync(path) ? {'file': fs.readFileSync(path, encoding), 'error': 0}
         : {'error': 1, 'message': `file doesn't exists at this ${path}`, 'file': ''};
 };
 /**
- * Chack token and return an object with
- * {
- *  err : bool
- *  code : intager
- *  message: string
- * }
- * @param  {object} req
- * @param  {object} res
+ * @param  {object} req - server request
+ * @param  {object} res - server response
  * @param  {string} signature
  * @param {string} regenerationTime
  * @return {object} result
+ */
+/**
+ * @param  {object} req - server request
+ * @return {string} token - string that contains token
  */
 Dispatcher.prototype.getLoginToken = function(req) {
     const cookie = this.parseCookies(req);
@@ -197,7 +219,13 @@ Dispatcher.prototype.getLoginToken = function(req) {
         return '';
     }
 };
-
+/**
+* @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} signature - privateKey
+ * @param  {int} regenerationTime
+ * @return {Error} error - if there insn't error object have token property
+ */
 Dispatcher.prototype.checkToken = function(req, res, signature, regenerationTime) {
     const token = this.getLoginToken(req);
     if (!token && token != '') {
@@ -214,7 +242,13 @@ Dispatcher.prototype.checkToken = function(req, res, signature, regenerationTime
         });
     }
 };
-
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} firstString
+ * @param  {string} secondString
+ * @param  {function} callback
+ */
 Dispatcher.prototype.bcryptCompare = function(req, res, firstString, secondString, callback) {
     bcrypt.compare(firstString, secondString, (err, result) => {
         if (err) {
@@ -230,6 +264,40 @@ Dispatcher.prototype.bcryptCompare = function(req, res, firstString, secondStrin
     });
 };
 
+/**
+ * @param  {object} req - server request
+ * @param  {object} res - server response
+ * @param  {string} privateKey - privateKey
+ * @param  {verifyTokenSendResponse} callback - (req, res, result)
+ */
+Dispatcher.prototype.verifyTokenSendResponse = function(req, res, privateKey, callback) {
+    const result = this.checkToken(req, res, privateKey);
+    if (result === null) {
+        this.sendError(req, res, {'error': 1, 'message': 'undefined token error', 'code': 500});
+    } else {
+        if ('code' in result) {
+            switch (result['code']) {
+            case 200:
+                res.setHeader('Set-Cookie', 'token=' + result['token'] + ';max-age=' + (60 * 60 * 24 * 3)+';Path=/');
+                callback(req, res, result);
+                break;
+            default:
+            case 401:
+                this.sendJson(req, res, {code: 401, message: 'must have token', error: true});
+                break;
+            case 403:
+                this.sendJson(req, res, {code: 403, message: 'bad token', error: true});
+                break;
+            case 500:
+                this.sendJson(req, res, {code: 500, message: 'internal server error', error: true});
+                break;
+            }
+        } else {
+            this.sendJson(req, res, {code: 500, message: 'internal server error tkn', error: true});
+        }
+    }
+};
+
 module.exports.Dispatcher = new Dispatcher();
 
 const MongoND = function() {
@@ -243,14 +311,17 @@ MongoND.prototype.setUri = function setUri(uri) {
     }
 };
 MongoND.prototype.getConnection = function(req, res, callback) {
-    if (this.uri == '') Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
-    mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
-        if (err) {
-            Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore connesione al db', error: 1});
-        } else {
-            callback(req, res, client);
-        }
-    });
+    if (this.uri == '') {
+        Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
+    } else {
+        mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
+            if (err) {
+                Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore connesione al db', error: 1});
+            } else {
+                callback(req, res, client);
+            }
+        });
+    }
 };
 /**
  * @name getFind
