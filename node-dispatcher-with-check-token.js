@@ -325,7 +325,7 @@ MongoND.prototype.getDelete = function(req, res, dbName, dbColletion, query, err
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
-        collection.removeMany(query).toArray(function(err, data) {
+        collection.removeMany(query, function(err, data) {
             if (errorHandling && err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {
                     code: '500', message: 'errore esequzione removeMany', error: 1,
