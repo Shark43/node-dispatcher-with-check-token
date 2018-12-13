@@ -97,7 +97,6 @@ Dispatcher.prototype.innerDispatch = function(req, res) {
 
     req['GET'] = JSON.parse(decodeURIComponent(parsedUrl.query));
 
-
     for (const key in req[metodo]) {
         console.log(key + ':' + req[metodo][key]);
     }
