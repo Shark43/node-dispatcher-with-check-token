@@ -635,7 +635,7 @@ UtilitiesExpress.prototype.staticListener = function(req, res, next) {
  */
 UtilitiesExpress.prototype.sendError = function(req, res, next, err, headers) {
     const header = (headers !== null) ? headers : {'Content-Type': 'text/plain;charset=utf-8'};
-    res.status(err.code);
+    res.status(err.code || 500);
     res.set(header);
     res.send(err.message);
 };
