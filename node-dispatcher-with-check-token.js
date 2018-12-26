@@ -791,7 +791,7 @@ UtilitiesExpress.prototype.verifyTokenSendResponse = function(req, res, next, pr
             switch (result['code']) {
             case 200:
                 // res.setHeader('Set-Cookie', 'token=' + result['token'] + ';max-age=' + (60 * 60 * 24 * 3)+';Path=/');
-                res.cookie('token', result['token'], {'path': '/', 'max-age': (60 * 60 * 24 * 3)});
+                res.cookie('token', result['token'], {'path': '/', 'maxAge': (60 * 60 * 24 * 3)});
                 callback(req, res, next, result);
                 break;
             default:
