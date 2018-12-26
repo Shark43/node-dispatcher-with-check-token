@@ -559,7 +559,7 @@ MongoND.prototype.replaceOne = function(req, res, dbName, dbColletion, query, er
 module.exports.Mongo= new MongoND();
 
 
-//EXPRESS
+// EXPRESS
 
 /**
  * @callback mongoCallback
@@ -831,20 +831,21 @@ MongoExpress.prototype.setUri = function setUri(uri) {
  * @param  {object} req - server request
  * @param  {object} res - server response
  * @param  {object} next - server next
+ * @param {bool} errorHandling - bool for errorHandling
  * @param  {getConnection} callback - req,res,callback
  */
-MongoExpress.prototype.getConnection = function(req, res, next, callback) {
-    if (this.uri == '') {
-        UtilitiesExpress.prototype.sendError.call(MongoExpress, req, res, next, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
-    } else {
-        mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
-            if (err) {
-                UtilitiesExpress.prototype.sendError.call(MongoExpress, req, res, next, {code: '500', message: 'errore connesione al db', error: 1});
-            } else {
-                callback(req, res, next, client);
-            }
-        });
-    }
+MongoExpress.prototype.getConnection = function(req, res, next, errorHandling, callback) {
+    // if (this.uri == '') {
+    //     UtilitiesExpress.prototype.sendError.call(MongoExpress, req, res, next, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
+    // } else {
+    mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
+        if (errorHandling && err) {
+            UtilitiesExpress.prototype.sendError.call(MongoExpress, req, res, next, {code: '500', message: 'errore connesione al db', error: 1});
+        } else {
+            callback(req, res, next, errorHandling, client);
+        }
+    });
+    // }
 };
 /**
  * @param  {object} req - server request
@@ -857,7 +858,7 @@ MongoExpress.prototype.getConnection = function(req, res, next, callback) {
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.getFind = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
         const find = (query && 'find' in query) ? query['find'] : {};
@@ -889,7 +890,7 @@ MongoExpress.prototype.getFind = function(req, res, next, dbName, dbColletion, q
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.getFindOne = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
@@ -916,7 +917,7 @@ MongoExpress.prototype.getFindOne = function(req, res, next, dbName, dbColletion
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.getAggregate = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
@@ -943,7 +944,7 @@ MongoExpress.prototype.getAggregate = function(req, res, next, dbName, dbColleti
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.getDelete = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
@@ -970,7 +971,7 @@ MongoExpress.prototype.getDelete = function(req, res, next, dbName, dbColletion,
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.insertOne = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
 
@@ -997,7 +998,7 @@ MongoExpress.prototype.insertOne = function(req, res, next, dbName, dbColletion,
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.updateMany = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
         const filter = (query && 'filter' in query) ? query['filter'] : {};
@@ -1026,7 +1027,7 @@ MongoExpress.prototype.updateMany = function(req, res, next, dbName, dbColletion
  * @param  {mongoCallback} callback - callback (req, res, err, data, client)
  */
 MongoExpress.prototype.replaceOne = function(req, res, next, dbName, dbColletion, query, errorHandling, callback) {
-    this.getConnection(req, res, next, (req, res, next, client) => {
+    this.getConnection(req, res, next, errorHandling, (req, res, next, errorHandling, client) => {
         const db = client.db(dbName);
         const collection = db.collection(dbColletion);
         const filter = (query && 'filter' in query) ? query['filter'] : {};
