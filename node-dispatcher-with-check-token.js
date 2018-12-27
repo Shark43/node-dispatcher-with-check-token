@@ -782,8 +782,8 @@ UtilitiesExpress.prototype.bcryptCompare = function(req, res, next, firstString,
  * @param  {string} privateKey - privateKey
  * @param  {verifyTokenSendResponse} callback - (req, res, result)
  */
-UtilitiesExpress.prototype.verifyTokenSendResponse = function(req, res, next, privateKey, callback) {
-    const result = this.checkToken(req, res, next, privateKey);
+UtilitiesExpress.prototype.verifyTokenSendResponse = function(req, res, next, privateKey, regenerationTime, callback) {
+    const result = this.checkToken(req, res, next, privateKey, regenerationTime);
     if (result === null) {
         this.sendError(req, res, next, {'error': 1, 'message': 'undefined token error', 'code': 500});
     } else {
