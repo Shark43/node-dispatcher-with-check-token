@@ -1,0 +1,109 @@
+<! doctype html>
+<html lang="it">
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8"/>
+    <!--Link per BootStrap-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="jquery.js"></script>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="libreria.js"></script>
+    <script type="text/javascript" src="registrati.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+		<h1 align="center">Registrazione</h1>
+		<form name="form1">
+            <!--txtUser-->
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"> </i>
+                        </span>
+                        <input type="text" name='txtNominativo' class="form-control" placeholder="nominativo">
+                    </div>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+
+            <!--txtMail-->
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-phone"> </i>
+                        </span>
+                        <input type="text" name='txtMail' class="form-control" placeholder="email">
+                    </div>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+
+            <!--txtPassword-->
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-lock"> </i>
+                        </span>
+                        <input type="password" name='txtPassword' class="form-control" placeholder="password">
+                    </div>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+
+            <!--txtResidenza-->
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"> </i>
+                        </span>
+                        <input type="text" name='txtResidenza' class="form-control" placeholder="residenza">
+                    </div>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+
+            <!--txtDataNascita-->
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-4 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"> </i>
+                        </span>
+                        <input type="date" name='txtDataNascita' class="form-control" placeholder="data di nascita">
+                    </div>
+                </div>
+                <div class="col-sm-4"></div>
+            </div>
+
+            <!--Ok-->
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-2 form-group">
+                    <button type="button" class="btn btn-primary btn-block" id="btnOk">OK</button>
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+			<!--Annulla-->
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-2 form-group">
+                    <button type="button" class="btn btn-primary btn-block">Annulla</button>
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+		</form>		
+    </div> <!-- end container -->
+	
+</body>
+</html>

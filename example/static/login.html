@@ -1,0 +1,76 @@
+<! doctype html>
+<html lang="it">
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8"/>
+    <!--Link per BootStrap-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="jquery.js"></script>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="./js/library.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+		<h1 align="center" style="padding:15px; padding-bottom:35px;">Login Page</h1>
+		<form name="form1" id="form1">
+            <!--txtUser-->
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-2 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-user"> </i>
+                        </span>
+                        <input type="email" name="txtUtente" class="form-control login" placeholder="email">
+                    </div>
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+
+            <!--txtPassword-->
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-2 form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-lock"> </i>
+                        </span>
+                        <input type="password" required name="txtPassword" class="form-control login" placeholder="password">
+                    </div>
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+			
+            <!--Registrati-->
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-2 form-group">
+                    <button type="button" class="btn btn-primary btn-block" onclick="window.location.href='registrati.html'">Registrati</button>
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+			<!--Accedi-->
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-2 form-group">
+                    <input type="submit" name="submit"  id="btnLogin" class="btn btn-primary btn-block" value="Accedi">
+                </div>
+                <div class="col-sm-5"></div>
+            </div>
+		</form>		
+    </div> <!-- end container -->
+    <div>
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2 form-group">
+                <button type="button" id="btnElenco" class="btn btn-primary btn-block">Elenco</button>
+            </div>
+            <div class="col-sm-5"></div>
+        </div>
+    </div>
+	
+</body>
+</html>

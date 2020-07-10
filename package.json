@@ -1,6 +1,6 @@
 {
   "name": "node-dispatcher-with-check-token",
-  "version": "0.1.13",
+  "version": "0.1.46",
   "description": "node dispatcher with check token",
   "main": "node-dispatcher-with-check-token.js",
   "scripts": {
@@ -11,10 +11,10 @@
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^8.3.0",
     "mime": "^2.4.0",
-    "request": "^2.88.0",
-    "url": "^0.11.0",
     "mongodb": "^3.1.10",
-    "mongodb-core": "^3.1.9"
+    "mongodb-core": "^3.1.9",
+    "request": "^2.88.0",
+    "url": "^0.11.0"
   },
   "keywords": [],
   "author": "Shark43",
