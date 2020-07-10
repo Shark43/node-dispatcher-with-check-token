@@ -64,7 +64,7 @@ Dispatcher.prototype.showList = function() {
 
 Dispatcher.prototype.dispatch = function(req, res) {
     const metodo = req.method.toUpperCase();
-    if (metodo == 'GET') {
+    if (metodo === 'GET') {
         this.innerDispatch(req, res);
     } else {
         this.parsePostParameters(req, res);
@@ -112,7 +112,7 @@ Dispatcher.prototype.innerDispatch = function(req, res) {
 Dispatcher.prototype.errorListener = function(req, res) {
     const resource = url.parse(req.url, true).pathname;
 
-    if (resource.substr(0, 4) == '/api') {
+    if (resource.substr(0, 4) === '/api') {
         this.sendErrorString(req, res);
     } else {
         fs.readFile('./static/error.html', (err, data) => {
@@ -141,7 +141,7 @@ Dispatcher.prototype.sendErrorString = function(req, res, headers) {
 Dispatcher.prototype.staticListener = function(req, res) {
     let risorsa = url.parse(req.url, true).pathname;
 
-    if (risorsa == '/') {
+    if (risorsa === '/') {
         risorsa = '/index.html';
     }
     const fileName = './static' + risorsa;
@@ -262,7 +262,7 @@ Dispatcher.prototype.getLoginToken = function(req) {
  */
 Dispatcher.prototype.checkToken = function(req, res, signature, regenerationTime) {
     const token = this.getLoginToken(req);
-    if (!token && token != '') {
+    if (!token && token !== '') {
         return {error: 1, message: 'missing token', code: 401};
     } else {
         return jwt.verify(token, signature, (error, data) => {
@@ -353,10 +353,10 @@ MongoND.prototype.setUri = function setUri(uri) {
  * @param  {getConnection} callback - req,res,callback
  */
 MongoND.prototype.getConnection = function(req, res, callback) {
-    if (this.uri == '') {
+    if (this.uri === '') {
         Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore: manca la stringa di connesione al connesione al db', error: 1});
     } else {
-        mongoClient.connect(this.uri, {useNewUrlParser: true}, function(err, client) {
+        mongoClient.connect(this.uri, {useNewUrlParser: true, useUnifiedTopology: true}, function(err, client) {
             if (err) {
                 Dispatcher.prototype.sendError.call(MongoND, req, res, {code: '500', message: 'errore connesione al db', error: 1});
             } else {
@@ -577,7 +577,7 @@ const UtilitiesExpress = function() {
 UtilitiesExpress.prototype.errorListener = function(req, res, next) {
     const resource = url.parse(req.url, true).pathname;
 
-    if (resource.substr(0, 4) == '/api') {
+    if (resource.substr(0, 4) === '/api') {
         this.sendErrorString(req, res, next);
     } else {
         fs.readFile('./static/error.html', (err, data) => {
@@ -608,7 +608,7 @@ UtilitiesExpress.prototype.sendErrorString = function(req, res, next, headers) {
 UtilitiesExpress.prototype.staticListener = function(req, res, next) {
     let risorsa = url.parse(req.url, true).pathname;
 
-    if (risorsa == '/') {
+    if (risorsa === '/') {
         risorsa = '/index.html';
     }
     const fileName = './static' + risorsa;
@@ -738,7 +738,7 @@ UtilitiesExpress.prototype.getLoginToken = function(req) {
  */
 UtilitiesExpress.prototype.checkToken = function(req, res, next, signature, regenerationTime) {
     const token = this.getLoginToken(req);
-    if (!token && token != '') {
+    if (!token && token !== '') {
         return {error: 1, message: 'missing token', code: 401};
     } else {
         return jwt.verify(token, signature, (error, data) => {
