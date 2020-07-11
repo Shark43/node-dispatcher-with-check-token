@@ -2,3 +2,4 @@ step.md
 node_modules
 .vscode
 node-dispatcher-with-check-token.code-workspace
+.npmrc
