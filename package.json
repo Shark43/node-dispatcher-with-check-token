@@ -1,13 +1,10 @@
 {
   "name": "node-dispatcher-with-check-token",
-  "version": "0.1.47",
+  "version": "0.1.48",
   "description": "node dispatcher with check token",
   "main": "node-dispatcher-with-check-token.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
